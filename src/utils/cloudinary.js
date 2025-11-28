@@ -18,10 +18,18 @@ export const uploadOnCloudinary = async (localFilePath) => {
       resource_type: "auto",
     });
 
-    fs.unlinkSync(localFilePath);
     return response;
   } catch (error) {
-    fs.unlinkSync(localFilePath);
+    console.log("cloudinary upload failed: ", error);
     return null;
+  } finally {
+    if (localFilePath) {
+      try {
+        fs.unlinkSync(localFilePath);
+        console.log(`Local file ${localFilePath} deleted successfully.`);
+      } catch (unlinkError) {
+        console.error("Error cleaning up local file:", unlinkError.message);
+      }
+    }
   }
 };

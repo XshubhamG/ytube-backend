@@ -127,7 +127,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 export const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user?._id,
-    { $set: { refreshToken: undefined } },
+    { $unset: { refreshToken: 1 } },
     { new: true }
   );
 
@@ -147,7 +147,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
 
-  if (incomingRefreshToken) throw new ApiError(401, "Unauthorized request");
+  if (!incomingRefreshToken) throw new ApiError(401, "Unauthorized request");
 
   try {
     const decodedToken = jwt.verify(
@@ -290,7 +290,7 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
       $lookup: {
         from: "subscriptions",
         localField: "_id",
-        foreignField: "subscribers",
+        foreignField: "subscriber",
         as: "subscribedTo",
       },
     },
